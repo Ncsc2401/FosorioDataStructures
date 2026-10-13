@@ -9,7 +9,7 @@
 #define FALSE 0
 
 typedef struct s_node {
-    data value;
+    t_data value;
     struct s_node * previous;
     struct s_node * next;
 } t_node;
@@ -23,28 +23,28 @@ typedef struct s_doubly_linked_list{
 // Prototypes
 t_doubly_linked_list * doubly_linked_list_create(void);
 int doubly_linked_list_copy(t_doubly_linked_list * list, t_doubly_linked_list * out);
-int doubly_linked_list_delete(t_doubly_linked_list * list, void (*destructor)(data));
-int doubly_linked_list_append(t_doubly_linked_list * list, data value);
-int doubly_linked_list_insert_after(t_doubly_linked_list * list, size_t index, data value);
-int doubly_linked_list_insert_before(t_doubly_linked_list * list, size_t index, data value);
-int doubly_linked_list_get(t_doubly_linked_list * list, size_t index, data * out_data);
-int doubly_linked_list_pop(t_doubly_linked_list * list, size_t index, data * out_data);
+int doubly_linked_list_delete(t_doubly_linked_list * list, void (*destructor)(t_data));
+int doubly_linked_list_append(t_doubly_linked_list * list, t_data value);
+int doubly_linked_list_insert_after(t_doubly_linked_list * list, size_t index, t_data value);
+int doubly_linked_list_insert_before(t_doubly_linked_list * list, size_t index, t_data value);
+int doubly_linked_list_get(t_doubly_linked_list * list, size_t index, t_data * out_t_data);
+int doubly_linked_list_pop(t_doubly_linked_list * list, size_t index, t_data * out_t_data);
 int doubly_linked_list_remove_at(t_doubly_linked_list * list, size_t index);
-int doubly_linked_list_has(t_doubly_linked_list * list, data value, int (*equals_function)(data, data));
-int doubly_linked_list_find_first_after(t_doubly_linked_list * list, data value, size_t index, int (*equals_function)(data, data), size_t * out_index);
-int doubly_linked_list_remove_first_after(t_doubly_linked_list * list, data value, size_t index, int (*equals_function)(data, data));
+int doubly_linked_list_has(t_doubly_linked_list * list, t_data value, int (*equals_function)(t_data, t_data));
+int doubly_linked_list_find_first_after(t_doubly_linked_list * list, t_data value, size_t index, int (*equals_function)(t_data, t_data), size_t * out_index);
+int doubly_linked_list_remove_first_after(t_doubly_linked_list * list, t_data value, size_t index, int (*equals_function)(t_data, t_data));
 int doubly_linked_list_clear(t_doubly_linked_list * list);
 int doubly_linked_list_get_size(t_doubly_linked_list * list, size_t * out_size);
-int doubly_linked_list_foreach(t_doubly_linked_list * list, void (*function)(data));
-int doubly_linked_list_map(t_doubly_linked_list * list, data (*function)(data));
+int doubly_linked_list_foreach(t_doubly_linked_list * list, void (*function)(t_data));
+int doubly_linked_list_map(t_doubly_linked_list * list, t_data (*function)(t_data));
 int doubly_linked_list_is_empty(t_doubly_linked_list * list);
-int doubly_linked_list_filter(t_doubly_linked_list * list, int (*function)(data), t_doubly_linked_list * out);
-int doubly_linked_list_sort(t_doubly_linked_list * list, int (*compare_function)(data, data));
+int doubly_linked_list_filter(t_doubly_linked_list * list, int (*function)(t_data), t_doubly_linked_list * out);
+int doubly_linked_list_sort(t_doubly_linked_list * list, int (*compare_function)(t_data, t_data));
 
 // Helper prototypes
 static int node_get(t_doubly_linked_list * list, size_t index, t_node ** out_node);
-static int node_find_from(t_node * start_node, data value, int (*equals_function)(data, data), t_node ** out_node, size_t * out_offset);
-static t_node * node_create(data value, t_node * previous, t_node * next);
+static int node_find_from(t_node * start_node, t_data value, int (*equals_function)(t_data, t_data), t_node ** out_node, size_t * out_offset);
+static t_node * node_create(t_data value, t_node * previous, t_node * next);
 
 /* 
     Creates a new doubly linked list 
@@ -94,7 +94,7 @@ int doubly_linked_list_copy(t_doubly_linked_list * list, t_doubly_linked_list * 
     Deletes a doubly linked list
     Performance O(2n)
 */
-int doubly_linked_list_delete(t_doubly_linked_list * list, void (*destructor)(data)){
+int doubly_linked_list_delete(t_doubly_linked_list * list, void (*destructor)(t_data)){
     if(list == NULL){
         return ERROR;
     }
@@ -118,7 +118,7 @@ int doubly_linked_list_delete(t_doubly_linked_list * list, void (*destructor)(da
     Appends a new value to a doubly linked list
     Performance O(1)
 */
-int doubly_linked_list_append(t_doubly_linked_list * list, data value){
+int doubly_linked_list_append(t_doubly_linked_list * list, t_data value){
     if(list == NULL){
         return ERROR;
     }
@@ -146,7 +146,7 @@ int doubly_linked_list_append(t_doubly_linked_list * list, data value){
     Inserts a new value to a doubly linked list after a given index
     Performance O(index)
 */
-int doubly_linked_list_insert_after(t_doubly_linked_list * list, size_t index, data value){
+int doubly_linked_list_insert_after(t_doubly_linked_list * list, size_t index, t_data value){
     if(list == NULL){
         return ERROR;
     }
@@ -182,7 +182,7 @@ int doubly_linked_list_insert_after(t_doubly_linked_list * list, size_t index, d
     Inserts a new value to a doubly linked list before a given index
     Performance O(index)
 */
-int doubly_linked_list_insert_before(t_doubly_linked_list * list, size_t index, data value){
+int doubly_linked_list_insert_before(t_doubly_linked_list * list, size_t index, t_data value){
     if(list == NULL){
         return ERROR;
     }
@@ -218,7 +218,7 @@ int doubly_linked_list_insert_before(t_doubly_linked_list * list, size_t index, 
     Gets a value from a doubly linked list at the given index
     Performance O(index)
 */
-int doubly_linked_list_get(t_doubly_linked_list * list, size_t index, data * out_data){
+int doubly_linked_list_get(t_doubly_linked_list * list, size_t index, t_data * out_t_data){
     if(list == NULL){
         return ERROR;
     }
@@ -232,8 +232,8 @@ int doubly_linked_list_get(t_doubly_linked_list * list, size_t index, data * out
         return ERROR;
     }
 
-    if(out_data != NULL){
-        *out_data = (node -> value);
+    if(out_t_data != NULL){
+        *out_t_data = (node -> value);
     }
 
     return SUCCESS;
@@ -243,7 +243,7 @@ int doubly_linked_list_get(t_doubly_linked_list * list, size_t index, data * out
     Gets a value and removes it from a doubly linked list at the given index
     Performance O(index)
 */
-int doubly_linked_list_pop(t_doubly_linked_list * list, size_t index, data * out_data){
+int doubly_linked_list_pop(t_doubly_linked_list * list, size_t index, t_data * out_t_data){
     if(list == NULL){
         return ERROR;
     }
@@ -271,8 +271,8 @@ int doubly_linked_list_pop(t_doubly_linked_list * list, size_t index, data * out
         (node -> next -> previous) = (node -> previous);
     }
 
-    if(out_data != NULL){
-        *out_data = (node -> value);
+    if(out_t_data != NULL){
+        *out_t_data = (node -> value);
     }
 
     free(node);
@@ -302,7 +302,7 @@ int doubly_linked_list_remove_at(t_doubly_linked_list * list, size_t index){
     Returns if a given value is in the doubly linked list
     Performance O(n)
 */
-int doubly_linked_list_has(t_doubly_linked_list * list, data value, int (*equals_function)(data, data)){
+int doubly_linked_list_has(t_doubly_linked_list * list, t_data value, int (*equals_function)(t_data, t_data)){
     if(list == NULL){
         return FALSE;
     }
@@ -322,7 +322,7 @@ int doubly_linked_list_has(t_doubly_linked_list * list, data value, int (*equals
     Gets the index of the first occurrence of a value after a given index in a linked list
     Performance O(n)
 */
-int doubly_linked_list_find_first_after(t_doubly_linked_list * list, data value, size_t index, int (*equals_function)(data, data), size_t * out_index){
+int doubly_linked_list_find_first_after(t_doubly_linked_list * list, t_data value, size_t index, int (*equals_function)(t_data, t_data), size_t * out_index){
     if(list == NULL){
         return ERROR;
     }
@@ -352,7 +352,7 @@ int doubly_linked_list_find_first_after(t_doubly_linked_list * list, data value,
     Removes the first occurrence of a value after a given index in a linked list
     Performance O(2n)
 */
-int doubly_linked_list_remove_first_after(t_doubly_linked_list * list, data value, size_t index, int (*equals_function)(data, data)){
+int doubly_linked_list_remove_first_after(t_doubly_linked_list * list, t_data value, size_t index, int (*equals_function)(t_data, t_data)){
     if(list == NULL){
         return ERROR;
     }
@@ -420,7 +420,7 @@ int doubly_linked_list_get_size(t_doubly_linked_list * list, size_t * out_size){
     Executes a function for each value in the doubly linked list
     Performance O(nO(function))
 */
-int doubly_linked_list_foreach(t_doubly_linked_list * list, void (*function)(data)){
+int doubly_linked_list_foreach(t_doubly_linked_list * list, void (*function)(t_data)){
     if(list == NULL){
         return ERROR;
     }
@@ -443,7 +443,7 @@ int doubly_linked_list_foreach(t_doubly_linked_list * list, void (*function)(dat
     Maps all values in a doubly linked list
     Performance O(nO(function))
 */
-int doubly_linked_list_map(t_doubly_linked_list * list, data (*function)(data)){
+int doubly_linked_list_map(t_doubly_linked_list * list, t_data (*function)(t_data)){
     if(list == NULL){
         return ERROR;
     }
@@ -477,7 +477,7 @@ int doubly_linked_list_is_empty(t_doubly_linked_list * list){
 /*
     Applies a filter and appends matching values to out
 */
-int doubly_linked_list_filter(t_doubly_linked_list * list, int (*function)(data), t_doubly_linked_list * out){
+int doubly_linked_list_filter(t_doubly_linked_list * list, int (*function)(t_data), t_doubly_linked_list * out){
     if(list == NULL){
         return ERROR;
     }
@@ -508,7 +508,7 @@ int doubly_linked_list_filter(t_doubly_linked_list * list, int (*function)(data)
     Sorts the list through exchange sort
     O(???)
 */
-int doubly_linked_list_sort(t_doubly_linked_list * list, int (*compare_function)(data, data)){
+int doubly_linked_list_sort(t_doubly_linked_list * list, int (*compare_function)(t_data, t_data)){
     if(list == NULL){
         return ERROR;
     }
@@ -523,7 +523,7 @@ int doubly_linked_list_sort(t_doubly_linked_list * list, int (*compare_function)
         t_node * node = pivot -> next;
         while(node != NULL){
             if(compare_function(node -> value, pivot -> value) < 0){
-                data temp = pivot -> value;
+                t_data temp = pivot -> value;
                 pivot -> value = node -> value;
                 node -> value = temp;
             }
@@ -569,7 +569,7 @@ static int node_get(t_doubly_linked_list * list, size_t index, t_node ** out_nod
     return SUCCESS;
 }
 
-static int node_find_from(t_node * start_node, data value, int (*equals_function)(data, data), t_node ** out_node, size_t * out_offset){
+static int node_find_from(t_node * start_node, t_data value, int (*equals_function)(t_data, t_data), t_node ** out_node, size_t * out_offset){
     if(start_node == NULL){
         return ERROR;
     }
@@ -600,7 +600,7 @@ static int node_find_from(t_node * start_node, data value, int (*equals_function
     return ERROR;
 }
 
-static t_node * node_create(data value, t_node * previous, t_node * next){
+static t_node * node_create(t_data value, t_node * previous, t_node * next){
     t_node * node = malloc(sizeof(*node));
 
     if(node == NULL){

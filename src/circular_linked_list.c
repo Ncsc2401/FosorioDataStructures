@@ -9,7 +9,7 @@
 #define FALSE 0
 
 typedef struct s_node {
-    data value;
+    t_data value;
     struct s_node * previous;
     struct s_node * next;
 } t_node;
@@ -22,28 +22,28 @@ typedef struct s_circular_linked_list{
 // Prototypes
 t_circular_linked_list * circular_linked_list_create(void);
 int circular_linked_list_copy(t_circular_linked_list * list, t_circular_linked_list * out);
-int circular_linked_list_delete(t_circular_linked_list * list, void (*destructor)(data));
-int circular_linked_list_append(t_circular_linked_list * list, data value);
-int circular_linked_list_insert_after(t_circular_linked_list * list, size_t index, data value);
-int circular_linked_list_insert_before(t_circular_linked_list * list, size_t index, data value);
-int circular_linked_list_get(t_circular_linked_list * list, size_t index, data * out_data);
+int circular_linked_list_delete(t_circular_linked_list * list, void (*destructor)(t_data));
+int circular_linked_list_append(t_circular_linked_list * list, t_data value);
+int circular_linked_list_insert_after(t_circular_linked_list * list, size_t index, t_data value);
+int circular_linked_list_insert_before(t_circular_linked_list * list, size_t index, t_data value);
+int circular_linked_list_get(t_circular_linked_list * list, size_t index, t_data * out_t_data);
 int circular_linked_list_rotate(t_circular_linked_list * list, long offset);
-int circular_linked_list_pop(t_circular_linked_list * list, size_t index, data * out_data);
+int circular_linked_list_pop(t_circular_linked_list * list, size_t index, t_data * out_t_data);
 int circular_linked_list_remove_at(t_circular_linked_list * list, size_t index);
-int circular_linked_list_has(t_circular_linked_list * list, data value, int (*equals_function)(data, data));
+int circular_linked_list_has(t_circular_linked_list * list, t_data value, int (*equals_function)(t_data, t_data));
 int circular_linked_list_clear(t_circular_linked_list * list);
 int circular_linked_list_get_size(t_circular_linked_list * list, size_t * out_size);
-int circular_linked_list_foreach(t_circular_linked_list * list, void (*function)(data));
-int circular_linked_list_map(t_circular_linked_list * list, data (*function)(data));
+int circular_linked_list_foreach(t_circular_linked_list * list, void (*function)(t_data));
+int circular_linked_list_map(t_circular_linked_list * list, t_data (*function)(t_data));
 int circular_linked_list_is_empty(t_circular_linked_list * list);
-int circular_linked_list_filter(t_circular_linked_list * list, int (*function)(data), t_circular_linked_list * out);
-int circular_linked_list_sort(t_circular_linked_list * list, int (*compare_function)(data, data));
+int circular_linked_list_filter(t_circular_linked_list * list, int (*function)(t_data), t_circular_linked_list * out);
+int circular_linked_list_sort(t_circular_linked_list * list, int (*compare_function)(t_data, t_data));
 
 // Helper prototypes
-static int node_find_from(t_node * start_node, data value, int (*equals_function)(data, data), t_node ** out_node, size_t * out_offset);
+static int node_find_from(t_node * start_node, t_data value, int (*equals_function)(t_data, t_data), t_node ** out_node, size_t * out_offset);
 static int node_get(t_circular_linked_list * list, size_t index, t_node ** out_node);
-static t_node * node_create(data value, t_node * previous, t_node * next);
-static t_node * node_create_origin(data value);
+static t_node * node_create(t_data value, t_node * previous, t_node * next);
+static t_node * node_create_origin(t_data value);
 
 /* 
     Creates a new circular linked list 
@@ -97,7 +97,7 @@ int circular_linked_list_copy(t_circular_linked_list * list, t_circular_linked_l
     Deletes a circular linked list
     Performance O(n)
 */
-int circular_linked_list_delete(t_circular_linked_list * list, void (*destructor)(data)){
+int circular_linked_list_delete(t_circular_linked_list * list, void (*destructor)(t_data)){
     if(list == NULL){
         return ERROR;
     }
@@ -121,7 +121,7 @@ int circular_linked_list_delete(t_circular_linked_list * list, void (*destructor
     Appends a new value right before the origin of a circular linked list
     Performance O(1)
 */
-int circular_linked_list_append(t_circular_linked_list * list, data value){
+int circular_linked_list_append(t_circular_linked_list * list, t_data value){
     if(list == NULL){
         return ERROR;
     }
@@ -156,7 +156,7 @@ int circular_linked_list_append(t_circular_linked_list * list, data value){
     Inserts a new value to a circular linked list after a given index. Doesn't changes the origin
     Performance O(index)
 */
-int circular_linked_list_insert_after(t_circular_linked_list * list, size_t index, data value){
+int circular_linked_list_insert_after(t_circular_linked_list * list, size_t index, t_data value){
     if(list == NULL){
         return ERROR;
     }
@@ -183,7 +183,7 @@ int circular_linked_list_insert_after(t_circular_linked_list * list, size_t inde
     Inserts a new value to a circular linked list before a given index. Doesn't changes the origin
     Performance O(index)
 */
-int circular_linked_list_insert_before(t_circular_linked_list * list, size_t index, data value){
+int circular_linked_list_insert_before(t_circular_linked_list * list, size_t index, t_data value){
     if(list == NULL){
         return ERROR;
     }
@@ -210,7 +210,7 @@ int circular_linked_list_insert_before(t_circular_linked_list * list, size_t ind
     Gets a value from a circular linked list at the given index
     Performance O(index)
 */
-int circular_linked_list_get(t_circular_linked_list * list, size_t index, data * out_data){
+int circular_linked_list_get(t_circular_linked_list * list, size_t index, t_data * out_t_data){
     if(list == NULL){
         return ERROR;
     }
@@ -220,8 +220,8 @@ int circular_linked_list_get(t_circular_linked_list * list, size_t index, data *
         return ERROR;
     }
 
-    if(out_data != NULL){
-        *out_data = (node -> value);
+    if(out_t_data != NULL){
+        *out_t_data = (node -> value);
     }
 
     return SUCCESS;
@@ -266,7 +266,7 @@ int circular_linked_list_rotate(t_circular_linked_list * list, long offset){
     Gets a value and removes it from a circular linked list at the given index
     Performance O(index)
 */
-int circular_linked_list_pop(t_circular_linked_list * list, size_t index, data * out_data){
+int circular_linked_list_pop(t_circular_linked_list * list, size_t index, t_data * out_t_data){
     if(list == NULL){
         return ERROR;
     }
@@ -288,8 +288,8 @@ int circular_linked_list_pop(t_circular_linked_list * list, size_t index, data *
     (node -> previous -> next) = (node -> next);
     (node -> next -> previous) = (node -> previous);
 
-    if(out_data != NULL){
-        *out_data = (node -> value);
+    if(out_t_data != NULL){
+        *out_t_data = (node -> value);
     }
 
     free(node);
@@ -315,7 +315,7 @@ int circular_linked_list_remove_at(t_circular_linked_list * list, size_t index){
     Returns if a given value is in the circular linked list
     Performance O(n)
 */
-int circular_linked_list_has(t_circular_linked_list * list, data value, int (*equals_function)(data, data)){
+int circular_linked_list_has(t_circular_linked_list * list, t_data value, int (*equals_function)(t_data, t_data)){
     if(list == NULL){
         return FALSE;
     }
@@ -384,7 +384,7 @@ int circular_linked_list_get_size(t_circular_linked_list * list, size_t * out_si
     Executes a function for each value in the circular linked list
     Performance O(nO(function))
 */
-int circular_linked_list_foreach(t_circular_linked_list * list, void (*function)(data)){
+int circular_linked_list_foreach(t_circular_linked_list * list, void (*function)(t_data)){
     if(list == NULL){
         return ERROR;
     }
@@ -412,7 +412,7 @@ int circular_linked_list_foreach(t_circular_linked_list * list, void (*function)
     Maps all values in a circular linked list
     Performance O(nO(function))
 */
-int circular_linked_list_map(t_circular_linked_list * list, data (*function)(data)){
+int circular_linked_list_map(t_circular_linked_list * list, t_data (*function)(t_data)){
     if(list == NULL){
         return ERROR;
     }
@@ -452,7 +452,7 @@ int circular_linked_list_is_empty(t_circular_linked_list * list){
     Filters a list and appends it to out
     O(nO(function))
 */
-int circular_linked_list_filter(t_circular_linked_list * list, int (*function)(data), t_circular_linked_list * out){
+int circular_linked_list_filter(t_circular_linked_list * list, int (*function)(t_data), t_circular_linked_list * out){
     if(list == NULL){
         return ERROR;
     }
@@ -488,7 +488,7 @@ int circular_linked_list_filter(t_circular_linked_list * list, int (*function)(d
     Sorts a list through exchange sort
     Performance O(n²)
 */
-int circular_linked_list_sort(t_circular_linked_list * list, int (*compare_function)(data, data)){
+int circular_linked_list_sort(t_circular_linked_list * list, int (*compare_function)(t_data, t_data)){
     if(list == NULL){
         return ERROR;
     }
@@ -504,7 +504,7 @@ int circular_linked_list_sort(t_circular_linked_list * list, int (*compare_funct
         t_node * node = pivot -> next;
         while(node != origin){
             if(compare_function(node -> value, pivot -> value) < 0){
-                data temp = (pivot -> value);
+                t_data temp = (pivot -> value);
                 (pivot -> value) = (node -> value);
                 (node -> value) = temp;
             }
@@ -518,7 +518,7 @@ int circular_linked_list_sort(t_circular_linked_list * list, int (*compare_funct
 
 // HELPER FUNCTIONS
 
-static int node_find_from(t_node * start_node, data value, int (*equals_function)(data, data), t_node ** out_node, size_t * out_offset){
+static int node_find_from(t_node * start_node, t_data value, int (*equals_function)(t_data, t_data), t_node ** out_node, size_t * out_offset){
     if(start_node == NULL){
         return ERROR;
     }
@@ -572,7 +572,7 @@ static int node_get(t_circular_linked_list * list, size_t index, t_node ** out_n
     return SUCCESS;
 }
 
-static t_node * node_create(data value, t_node * previous, t_node * next){
+static t_node * node_create(t_data value, t_node * previous, t_node * next){
     t_node * node = malloc(sizeof(*node));
 
     if(node == NULL){
@@ -587,7 +587,7 @@ static t_node * node_create(data value, t_node * previous, t_node * next){
     return node;
 }
 
-static t_node * node_create_origin(data value){
+static t_node * node_create_origin(t_data value){
     t_node * node = node_create(value, NULL, NULL);
 
     if(node == NULL){

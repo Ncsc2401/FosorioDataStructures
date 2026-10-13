@@ -6,7 +6,7 @@
 #define SUCCESS 0
 
 typedef struct s_node {
-    data value;
+    t_data value;
     struct s_node * next;
 } t_node;
 
@@ -17,19 +17,19 @@ typedef struct s_stack{
 
 // Prototypes
 t_stack * stack_create(void);
-int stack_delete(t_stack * stack, void (*destructor)(data));
+int stack_delete(t_stack * stack, void (*destructor)(t_data));
 int stack_reverse(t_stack * stack, t_stack * out);
 int stack_copy(t_stack * stack, t_stack * out);
-int stack_push(t_stack * stack, data value);
-int stack_peek(t_stack * stack, data * out_data);
-int stack_pop(t_stack * stack, data * out_data);
+int stack_push(t_stack * stack, t_data value);
+int stack_peek(t_stack * stack, t_data * out_t_data);
+int stack_pop(t_stack * stack, t_data * out_t_data);
 int stack_clear(t_stack * stack);
 int stack_get_size(t_stack * stack, size_t * out_size);
 int stack_is_empty(t_stack * stack);
 
 // Helper prototypes
-static int stack_foreach(t_stack * stack, void (*function)(data));
-static t_node * node_create(data value, t_node * next);
+static int stack_foreach(t_stack * stack, void (*function)(t_data));
+static t_node * node_create(t_data value, t_node * next);
 
 /* 
     Creates a new stack 
@@ -111,7 +111,7 @@ int stack_copy(t_stack * stack, t_stack * out){
     Deletes a stack
     Performance O(n)
 */
-int stack_delete(t_stack * stack, void (*destructor)(data)){
+int stack_delete(t_stack * stack, void (*destructor)(t_data)){
     if(stack == NULL){
         return ERROR;
     }
@@ -136,7 +136,7 @@ int stack_delete(t_stack * stack, void (*destructor)(data)){
     Pushes a new value to a stack
     Performance O(1)
 */
-int stack_push(t_stack * stack, data value){
+int stack_push(t_stack * stack, t_data value){
     if(stack == NULL){
         return ERROR;
     }
@@ -156,7 +156,7 @@ int stack_push(t_stack * stack, data value){
     Gets a value from the top of the tacl
     Performance O(1)
 */
-int stack_peek(t_stack * stack, data * out_data){
+int stack_peek(t_stack * stack, t_data * out_t_data){
     if(stack == NULL){
         return ERROR;
     }
@@ -165,8 +165,8 @@ int stack_peek(t_stack * stack, data * out_data){
         return ERROR;
     }
 
-    if(out_data != NULL){
-        *out_data = (stack -> top -> value);
+    if(out_t_data != NULL){
+        *out_t_data = (stack -> top -> value);
     }
 
     return SUCCESS;
@@ -176,7 +176,7 @@ int stack_peek(t_stack * stack, data * out_data){
     Gets a value and removes it from a stack
     Performance O(1)
 */
-int stack_pop(t_stack * stack, data * out_data){
+int stack_pop(t_stack * stack, t_data * out_t_data){
     if(stack == NULL){
         return ERROR;
     }
@@ -189,8 +189,8 @@ int stack_pop(t_stack * stack, data * out_data){
     (stack -> top) = (top -> next);
     (stack -> size)--;
 
-    if(out_data != NULL){
-        *out_data = (top -> value);
+    if(out_t_data != NULL){
+        *out_t_data = (top -> value);
     }
 
     free(top);
@@ -253,7 +253,7 @@ int stack_is_empty(t_stack * stack){
 
 // HELPER FUNCTIONS
 
-static int stack_foreach(t_stack * stack, void (*function)(data)){
+static int stack_foreach(t_stack * stack, void (*function)(t_data)){
     if(stack == NULL){
         return ERROR;
     }
@@ -272,7 +272,7 @@ static int stack_foreach(t_stack * stack, void (*function)(data)){
     return SUCCESS;
 }
 
-static t_node * node_create(data value, t_node * next){
+static t_node * node_create(t_data value, t_node * next){
     t_node * node = malloc(sizeof(*node));
 
     if(node == NULL){

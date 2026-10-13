@@ -5,7 +5,7 @@
 #define SUCCESS 0
 
 typedef struct s_node {
-    data value;
+    t_data value;
     struct s_node * next;
     struct s_node * previous;
 } t_node;
@@ -18,22 +18,22 @@ typedef struct s_deque{
 
 // Prototypes
 t_deque * deque_create(void);
-int deque_delete(t_deque * deque, void (*destructor)(data));
+int deque_delete(t_deque * deque, void (*destructor)(t_data));
 int deque_reverse(t_deque * deque, t_deque * out);
 int deque_copy(t_deque * deque, t_deque * out);
-int deque_push_front(t_deque * deque, data value);
-int deque_peek_front(t_deque * deque, data * out_data);
-int deque_pop_front(t_deque * deque, data * out_data);
-int deque_push_back(t_deque * deque, data value);
-int deque_peek_back(t_deque * deque, data * out_data);
-int deque_pop_back(t_deque * deque, data * out_data);
+int deque_push_front(t_deque * deque, t_data value);
+int deque_peek_front(t_deque * deque, t_data * out_t_data);
+int deque_pop_front(t_deque * deque, t_data * out_t_data);
+int deque_push_back(t_deque * deque, t_data value);
+int deque_peek_back(t_deque * deque, t_data * out_t_data);
+int deque_pop_back(t_deque * deque, t_data * out_t_data);
 int deque_clear(t_deque * deque);
 int deque_get_size(t_deque * deque, size_t * out_size);
 int deque_is_empty(t_deque * deque);
 
 // Helper prototypes
-static int deque_foreach(t_deque * deque, void (*function)(data));
-static t_node * node_create(data value, t_node * previous, t_node * next);
+static int deque_foreach(t_deque * deque, void (*function)(t_data));
+static t_node * node_create(t_data value, t_node * previous, t_node * next);
 
 /* 
     Creates a new deque 
@@ -108,7 +108,7 @@ int deque_copy(t_deque * deque, t_deque * out){
     Deletes a deque
     Performance O(n)
 */
-int deque_delete(t_deque * deque, void (*destructor)(data)){
+int deque_delete(t_deque * deque, void (*destructor)(t_data)){
     if(deque == NULL){
         return ERROR;
     }
@@ -132,7 +132,7 @@ int deque_delete(t_deque * deque, void (*destructor)(data)){
     Pushes a new value to the front of a deque
     Performance O(1)
 */
-int deque_push_front(t_deque * deque, data value){
+int deque_push_front(t_deque * deque, t_data value){
     if(deque == NULL){
         return ERROR;
     }
@@ -160,7 +160,7 @@ int deque_push_front(t_deque * deque, data value){
     Pushes a new value to the back of a deque
     Performance O(1)
 */
-int deque_push_back(t_deque * deque, data value){
+int deque_push_back(t_deque * deque, t_data value){
     if(deque == NULL){
         return ERROR;
     }
@@ -188,7 +188,7 @@ int deque_push_back(t_deque * deque, data value){
     Peeks the value at the front of the deque
     Performance O(1)
 */
-int deque_peek_front(t_deque * deque, data * out_data){
+int deque_peek_front(t_deque * deque, t_data * out_t_data){
     if(deque == NULL){
         return ERROR;
     }
@@ -197,8 +197,8 @@ int deque_peek_front(t_deque * deque, data * out_data){
         return ERROR;
     }
 
-    if(out_data != NULL){
-        *out_data = (deque -> front -> value);
+    if(out_t_data != NULL){
+        *out_t_data = (deque -> front -> value);
     }
 
     return SUCCESS;
@@ -208,7 +208,7 @@ int deque_peek_front(t_deque * deque, data * out_data){
     Peeks the value at the back of the deque
     Performance O(1)
 */
-int deque_peek_back(t_deque * deque, data * out_data){
+int deque_peek_back(t_deque * deque, t_data * out_t_data){
     if(deque == NULL){
         return ERROR;
     }
@@ -217,8 +217,8 @@ int deque_peek_back(t_deque * deque, data * out_data){
         return ERROR;
     }
 
-    if(out_data != NULL){
-        *out_data = (deque -> back -> value);
+    if(out_t_data != NULL){
+        *out_t_data = (deque -> back -> value);
     }
 
     return SUCCESS;
@@ -228,7 +228,7 @@ int deque_peek_back(t_deque * deque, data * out_data){
     Gets a value and removes it from the front of a deque
     Performance O(1)
 */
-int deque_pop_front(t_deque * deque, data * out_data){
+int deque_pop_front(t_deque * deque, t_data * out_t_data){
     if(deque == NULL){
         return ERROR;
     }
@@ -248,8 +248,8 @@ int deque_pop_front(t_deque * deque, data * out_data){
     (deque -> front) = (front -> next);
     (deque -> size)--;
 
-    if(out_data != NULL){
-        *out_data = (front -> value);
+    if(out_t_data != NULL){
+        *out_t_data = (front -> value);
     }
     free(front);
 
@@ -260,7 +260,7 @@ int deque_pop_front(t_deque * deque, data * out_data){
     Gets a value and removes it from the back of a deque
     Performance O(1)
 */
-int deque_pop_back(t_deque * deque, data * out_data){
+int deque_pop_back(t_deque * deque, t_data * out_t_data){
     if(deque == NULL){
         return ERROR;
     }
@@ -280,8 +280,8 @@ int deque_pop_back(t_deque * deque, data * out_data){
     (deque -> back) = (back -> previous);
     (deque -> size)--;
 
-    if(out_data != NULL){
-        *out_data = (back -> value);
+    if(out_t_data != NULL){
+        *out_t_data = (back -> value);
     }
     free(back);
 
@@ -345,7 +345,7 @@ int deque_is_empty(t_deque * deque){
 
 // HELPER FUNCTIONS
 
-static int deque_foreach(t_deque * deque, void (*function)(data)){
+static int deque_foreach(t_deque * deque, void (*function)(t_data)){
     if(deque == NULL){
         return ERROR;
     }
@@ -365,7 +365,7 @@ static int deque_foreach(t_deque * deque, void (*function)(data)){
 }
 
 
-static t_node * node_create(data value, t_node * previous, t_node * next){
+static t_node * node_create(t_data value, t_node * previous, t_node * next){
     t_node * node = malloc(sizeof(*node));
 
     if(node == NULL){

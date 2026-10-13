@@ -9,7 +9,7 @@
 #define FALSE 0
 
 typedef struct s_node {
-    data value;
+    t_data value;
     struct s_node * next;
 } t_node;
 
@@ -22,28 +22,28 @@ typedef struct s_singly_linked_list{
 // Prototypes
 t_singly_linked_list * singly_linked_list_create(void);
 int singly_linked_list_copy(t_singly_linked_list * list, t_singly_linked_list * out);
-int singly_linked_list_delete(t_singly_linked_list * list, void (*destructor)(data));
-int singly_linked_list_append(t_singly_linked_list * list, data value);
-int singly_linked_list_insert_after(t_singly_linked_list * list, size_t index, data value);
-int singly_linked_list_insert_before(t_singly_linked_list * list, size_t index, data value);
-int singly_linked_list_get(t_singly_linked_list * list, size_t index, data * out_data);
-int singly_linked_list_pop(t_singly_linked_list * list, size_t index, data * out_data);
+int singly_linked_list_delete(t_singly_linked_list * list, void (*destructor)(t_data));
+int singly_linked_list_append(t_singly_linked_list * list, t_data value);
+int singly_linked_list_insert_after(t_singly_linked_list * list, size_t index, t_data value);
+int singly_linked_list_insert_before(t_singly_linked_list * list, size_t index, t_data value);
+int singly_linked_list_get(t_singly_linked_list * list, size_t index, t_data * out_t_data);
+int singly_linked_list_pop(t_singly_linked_list * list, size_t index, t_data * out_t_data);
 int singly_linked_list_remove_at(t_singly_linked_list * list, size_t index);
-int singly_linked_list_has(t_singly_linked_list * list, data value, int (*equals_function)(data, data));
-int singly_linked_list_find_first_after(t_singly_linked_list * list, data value, size_t index, int (*equals_function)(data, data), size_t * out_index);
-int singly_linked_list_remove_first_after(t_singly_linked_list * list, data value, size_t index, int (*equals_function)(data, data));
+int singly_linked_list_has(t_singly_linked_list * list, t_data value, int (*equals_function)(t_data, t_data));
+int singly_linked_list_find_first_after(t_singly_linked_list * list, t_data value, size_t index, int (*equals_function)(t_data, t_data), size_t * out_index);
+int singly_linked_list_remove_first_after(t_singly_linked_list * list, t_data value, size_t index, int (*equals_function)(t_data, t_data));
 int singly_linked_list_clear(t_singly_linked_list * list);
 int singly_linked_list_get_size(t_singly_linked_list * list, size_t * out_size);
-int singly_linked_list_foreach(t_singly_linked_list * list, void (*function)(data));
-int singly_linked_list_map(t_singly_linked_list * list, data (*function)(data));
+int singly_linked_list_foreach(t_singly_linked_list * list, void (*function)(t_data));
+int singly_linked_list_map(t_singly_linked_list * list, t_data (*function)(t_data));
 int singly_linked_list_is_empty(t_singly_linked_list * list);
-int singly_linked_list_filter(t_singly_linked_list * list, int (*function)(data), t_singly_linked_list * out);
-int singly_linked_list_sort(t_singly_linked_list * list, int (*compare_function)(data, data));
+int singly_linked_list_filter(t_singly_linked_list * list, int (*function)(t_data), t_singly_linked_list * out);
+int singly_linked_list_sort(t_singly_linked_list * list, int (*compare_function)(t_data, t_data));
 
 // Helper prototypes
 static int node_get(t_singly_linked_list * list, size_t index, t_node ** out_node);
-static int node_find_from(t_node * start_node, data value, int (*equals_function)(data, data), t_node ** out_node, size_t * out_offset);
-static t_node * node_create(data value, t_node * next);
+static int node_find_from(t_node * start_node, t_data value, int (*equals_function)(t_data, t_data), t_node ** out_node, size_t * out_offset);
+static t_node * node_create(t_data value, t_node * next);
 
 /* 
     Creates a new singly linked list 
@@ -93,7 +93,7 @@ int singly_linked_list_copy(t_singly_linked_list * list, t_singly_linked_list * 
     Deletes a singly linked list
     Performance O(2n)
 */
-int singly_linked_list_delete(t_singly_linked_list * list, void (*destructor)(data)){
+int singly_linked_list_delete(t_singly_linked_list * list, void (*destructor)(t_data)){
     if(list == NULL){
         return ERROR;
     }
@@ -117,7 +117,7 @@ int singly_linked_list_delete(t_singly_linked_list * list, void (*destructor)(da
     Appends a new value to a singly linked list
     Performance O(1)
 */
-int singly_linked_list_append(t_singly_linked_list * list, data value){
+int singly_linked_list_append(t_singly_linked_list * list, t_data value){
     if(list == NULL){
         return ERROR;
     }
@@ -144,7 +144,7 @@ int singly_linked_list_append(t_singly_linked_list * list, data value){
     Inserts a new value to a singly linked list after a given index
     Performance O(index)
 */
-int singly_linked_list_insert_after(t_singly_linked_list * list, size_t index, data value){
+int singly_linked_list_insert_after(t_singly_linked_list * list, size_t index, t_data value){
     if(list == NULL){
         return ERROR;
     }
@@ -177,7 +177,7 @@ int singly_linked_list_insert_after(t_singly_linked_list * list, size_t index, d
     Inserts a new value to a singly linked list before a given index
     Performance O(index)
 */
-int singly_linked_list_insert_before(t_singly_linked_list * list, size_t index, data value){
+int singly_linked_list_insert_before(t_singly_linked_list * list, size_t index, t_data value){
     if(list == NULL){
         return ERROR;
     }
@@ -219,7 +219,7 @@ int singly_linked_list_insert_before(t_singly_linked_list * list, size_t index, 
     Gets a value from a singly linked list at the given index
     Performance O(index)
 */
-int singly_linked_list_get(t_singly_linked_list * list, size_t index, data * out_data){
+int singly_linked_list_get(t_singly_linked_list * list, size_t index, t_data * out_t_data){
     if(list == NULL){
         return ERROR;
     }
@@ -233,8 +233,8 @@ int singly_linked_list_get(t_singly_linked_list * list, size_t index, data * out
         return ERROR;
     }
 
-    if(out_data != NULL){
-        *out_data = (node -> value);
+    if(out_t_data != NULL){
+        *out_t_data = (node -> value);
     }
 
     return SUCCESS;
@@ -244,7 +244,7 @@ int singly_linked_list_get(t_singly_linked_list * list, size_t index, data * out
     Gets a value and removes it from a singly linked list at the given index
     Performance O(index)
 */
-int singly_linked_list_pop(t_singly_linked_list * list, size_t index, data * out_data){
+int singly_linked_list_pop(t_singly_linked_list * list, size_t index, t_data * out_t_data){
     if(list == NULL){
         return ERROR;
     }
@@ -273,8 +273,8 @@ int singly_linked_list_pop(t_singly_linked_list * list, size_t index, data * out
         }
     }
 
-    if(out_data != NULL){
-        *out_data = (to_remove -> value);
+    if(out_t_data != NULL){
+        *out_t_data = (to_remove -> value);
     }
 
     free(to_remove);
@@ -304,7 +304,7 @@ int singly_linked_list_remove_at(t_singly_linked_list * list, size_t index){
     Returns if a given value is in the singly linked list
     Performance O(n)
 */
-int singly_linked_list_has(t_singly_linked_list * list, data value, int (*equals_function)(data, data)){
+int singly_linked_list_has(t_singly_linked_list * list, t_data value, int (*equals_function)(t_data, t_data)){
     if(list == NULL){
         return FALSE;
     }
@@ -324,7 +324,7 @@ int singly_linked_list_has(t_singly_linked_list * list, data value, int (*equals
     Gets the index of the first occurrence of a value after a given index in a linked list
     Performance O(n)
 */
-int singly_linked_list_find_first_after(t_singly_linked_list * list, data value, size_t index, int (*equals_function)(data, data), size_t * out_index){
+int singly_linked_list_find_first_after(t_singly_linked_list * list, t_data value, size_t index, int (*equals_function)(t_data, t_data), size_t * out_index){
     if(list == NULL){
         return ERROR;
     }
@@ -354,7 +354,7 @@ int singly_linked_list_find_first_after(t_singly_linked_list * list, data value,
     Removes the first occurrence of a value after a given index in a linked list
     Performance O(2n)
 */
-int singly_linked_list_remove_first_after(t_singly_linked_list * list, data value, size_t index, int (*equals_function)(data, data)){
+int singly_linked_list_remove_first_after(t_singly_linked_list * list, t_data value, size_t index, int (*equals_function)(t_data, t_data)){
     if(list == NULL){
         return ERROR;
     }
@@ -421,7 +421,7 @@ int singly_linked_list_get_size(t_singly_linked_list * list, size_t * out_size){
     Executes a function for each value in the singly linked list
     Performance O(nO(function))
 */
-int singly_linked_list_foreach(t_singly_linked_list * list, void (*function)(data)){
+int singly_linked_list_foreach(t_singly_linked_list * list, void (*function)(t_data)){
     if(list == NULL){
         return ERROR;
     }
@@ -444,7 +444,7 @@ int singly_linked_list_foreach(t_singly_linked_list * list, void (*function)(dat
     Maps all values in a singly linked list
     Performance O(nO(function))
 */
-int singly_linked_list_map(t_singly_linked_list * list, data (*function)(data)){
+int singly_linked_list_map(t_singly_linked_list * list, t_data (*function)(t_data)){
     if(list == NULL){
         return ERROR;
     }
@@ -479,7 +479,7 @@ int singly_linked_list_is_empty(t_singly_linked_list * list){
     Applies a filter and appends the matching values to out
     O(NO(function))
 */
-int singly_linked_list_filter(t_singly_linked_list * list, int (*function)(data), t_singly_linked_list * out){
+int singly_linked_list_filter(t_singly_linked_list * list, int (*function)(t_data), t_singly_linked_list * out){
     if(list == NULL){
         return ERROR;
     }
@@ -510,7 +510,7 @@ int singly_linked_list_filter(t_singly_linked_list * list, int (*function)(data)
     Sorts the list through exchange sort
     O(n²)
 */
-int singly_linked_list_sort(t_singly_linked_list * list, int (*compare_function)(data, data)){
+int singly_linked_list_sort(t_singly_linked_list * list, int (*compare_function)(t_data, t_data)){
     if(list == NULL){
         return ERROR;
     }
@@ -525,7 +525,7 @@ int singly_linked_list_sort(t_singly_linked_list * list, int (*compare_function)
         t_node * node = pivot -> next;
         while(node != NULL){
             if(compare_function(node -> value, pivot -> value) < 0){
-                data temp = pivot -> value;
+                t_data temp = pivot -> value;
                 pivot -> value = node -> value;
                 node -> value = temp;
             }
@@ -559,7 +559,7 @@ static int node_get(t_singly_linked_list * list, size_t index, t_node ** out_nod
     return SUCCESS;
 }
 
-static int node_find_from(t_node * start_node, data value, int (*equals_function)(data, data), t_node ** out_node, size_t * out_offset){
+static int node_find_from(t_node * start_node, t_data value, int (*equals_function)(t_data, t_data), t_node ** out_node, size_t * out_offset){
     if(start_node == NULL){
         return ERROR;
     }
@@ -590,7 +590,7 @@ static int node_find_from(t_node * start_node, data value, int (*equals_function
     return ERROR;
 }
 
-static t_node * node_create(data value, t_node * next){
+static t_node * node_create(t_data value, t_node * next){
     t_node * node = malloc(sizeof(*node));
 
     if(node == NULL){

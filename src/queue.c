@@ -7,7 +7,7 @@
 
 // (HEAD) Previous -> Node -> Next (TAIL)
 typedef struct s_node {
-    data value;
+    t_data value;
     struct s_node * next;
     struct s_node * previous;
 } t_node;
@@ -20,19 +20,19 @@ typedef struct s_queue{
 
 // Prototypes
 t_queue * queue_create(void);
-int queue_delete(t_queue * queue, void (*destructor)(data));
+int queue_delete(t_queue * queue, void (*destructor)(t_data));
 int queue_reverse(t_queue * queue, t_queue * out);
 int queue_copy(t_queue * queue, t_queue * out);
-int queue_push(t_queue * queue, data value);
-int queue_peek(t_queue * queue, data * out_data);
-int queue_pop(t_queue * queue, data * out_data);
+int queue_push(t_queue * queue, t_data value);
+int queue_peek(t_queue * queue, t_data * out_t_data);
+int queue_pop(t_queue * queue, t_data * out_t_data);
 int queue_clear(t_queue * queue);
 int queue_get_size(t_queue * queue, size_t * out_size);
 int queue_is_empty(t_queue * queue);
 
 // Helper prototypes
-static int queue_foreach(t_queue * queue, void (*function)(data));
-static t_node * node_create(data value, t_node * previous, t_node * next);
+static int queue_foreach(t_queue * queue, void (*function)(t_data));
+static t_node * node_create(t_data value, t_node * previous, t_node * next);
 
 /* 
     Creates a new queue 
@@ -107,7 +107,7 @@ int queue_copy(t_queue * queue, t_queue * out){
     Deletes a queue
     Performance O(n)
 */
-int queue_delete(t_queue * queue, void (*destructor)(data)){
+int queue_delete(t_queue * queue, void (*destructor)(t_data)){
     if(queue == NULL){
         return ERROR;
     }
@@ -131,7 +131,7 @@ int queue_delete(t_queue * queue, void (*destructor)(data)){
     Pushes a new value to a queue
     Performance O(1)
 */
-int queue_push(t_queue * queue, data value){
+int queue_push(t_queue * queue, t_data value){
     if(queue == NULL){
         return ERROR;
     }
@@ -159,7 +159,7 @@ int queue_push(t_queue * queue, data value){
     Peeks the value at head of the queue
     Performance O(1)
 */
-int queue_peek(t_queue * queue, data * out_data){
+int queue_peek(t_queue * queue, t_data * out_t_data){
     if(queue == NULL){
         return ERROR;
     }
@@ -168,8 +168,8 @@ int queue_peek(t_queue * queue, data * out_data){
         return ERROR;
     }
 
-    if(out_data != NULL){
-        *out_data = (queue -> head -> value);
+    if(out_t_data != NULL){
+        *out_t_data = (queue -> head -> value);
     }
 
     return SUCCESS;
@@ -179,7 +179,7 @@ int queue_peek(t_queue * queue, data * out_data){
     Gets a value and removes it from a queue
     Performance O(1)
 */
-int queue_pop(t_queue * queue, data * out_data){
+int queue_pop(t_queue * queue, t_data * out_t_data){
     if(queue == NULL){
         return ERROR;
     }
@@ -199,8 +199,8 @@ int queue_pop(t_queue * queue, data * out_data){
     (queue -> head) = (head -> next);
     (queue -> size)--;
 
-    if(out_data != NULL){
-        *out_data = (head -> value);
+    if(out_t_data != NULL){
+        *out_t_data = (head -> value);
     }
     free(head);
 
@@ -263,7 +263,7 @@ int queue_is_empty(t_queue * queue){
 
 // HELPER FUNCTIONS
 
-static int queue_foreach(t_queue * queue, void (*function)(data)){
+static int queue_foreach(t_queue * queue, void (*function)(t_data)){
     if(queue == NULL){
         return ERROR;
     }
@@ -283,7 +283,7 @@ static int queue_foreach(t_queue * queue, void (*function)(data)){
 }
 
 
-static t_node * node_create(data value, t_node * previous, t_node * next){
+static t_node * node_create(t_data value, t_node * previous, t_node * next){
     t_node * node = malloc(sizeof(*node));
 
     if(node == NULL){
