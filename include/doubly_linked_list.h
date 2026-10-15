@@ -3,7 +3,6 @@
 
 #include <stdlib.h>
 
-
 typedef float t_data;
 
 typedef struct s_doubly_linked_list t_doubly_linked_list;
