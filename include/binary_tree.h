@@ -8,6 +8,8 @@ typedef float t_data;
 typedef struct s_binary_tree t_binary_tree;
 
 t_binary_tree * binary_tree_create(float (*compare_function)(t_data, t_data));
+int binary_tree_copy(t_binary_tree * tree, t_binary_tree * out);
+int binary_tree_copy_subtree(t_binary_tree * tree, t_data value, t_binary_tree * out);
 int binary_tree_delete(t_binary_tree * tree, void (*destructor)(t_data));
 int binary_tree_insert(t_binary_tree * tree, t_data value);
 int binary_tree_has(t_binary_tree * tree, t_data value);

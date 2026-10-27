@@ -21,6 +21,8 @@ typedef struct s_binary_tree{
 } t_binary_tree;
 
 t_binary_tree * binary_tree_create(float (*compare_function)(t_data, t_data));
+int binary_tree_copy(t_binary_tree * tree, t_binary_tree * out);
+int binary_tree_copy_subtree(t_binary_tree * tree, t_data value, t_binary_tree * out);
 int binary_tree_delete(t_binary_tree * tree, void (*destructor)(t_data));
 int binary_tree_insert(t_binary_tree * tree, t_data value);
 int binary_tree_has(t_binary_tree * tree, t_data value);
@@ -50,6 +52,10 @@ static int node_count_depth(t_node * start, size_t * out_depth);
 static int node_pre_order_traverse(t_node * start, void (*func)(t_data));
 static int node_in_order_traverse(t_node * start, void (*func)(t_data));
 static int node_pos_order_traverse(t_node * start, void (*func)(t_data));
+static void void_binary_tree_insert(t_data value);
+
+// Helper variable for void_binary_tree_insert
+static t_binary_tree * __tree_ref;
 
 t_binary_tree * binary_tree_create(float (*compare_function)(t_data, t_data)){
     if(compare_function == NULL){   
@@ -67,6 +73,47 @@ t_binary_tree * binary_tree_create(float (*compare_function)(t_data, t_data)){
     (tree -> root) = NULL;
 
     return tree;
+}
+
+int binary_tree_copy(t_binary_tree * tree, t_binary_tree * out){
+    if(tree == NULL){
+        return ERROR;
+    }
+
+    if(out == NULL){
+        return ERROR;
+    }
+
+    __tree_ref = out;
+    if(node_pre_order_traverse((tree -> root), void_binary_tree_insert)){
+        return ERROR;
+    }
+    __tree_ref = NULL;
+
+    return SUCCESS;
+}
+
+int binary_tree_copy_subtree(t_binary_tree * tree, t_data value, t_binary_tree * out){
+    if(tree == NULL){
+        return ERROR;
+    }
+
+    if(out == NULL){
+        return ERROR;
+    }
+
+    t_node * start;
+    if(node_find_from((tree -> root), (tree -> compare_function), value, &start, NULL)){
+        return ERROR;
+    }
+
+    __tree_ref = out;
+    if(node_pre_order_traverse(start, void_binary_tree_insert)){
+        return ERROR;
+    }
+    __tree_ref = NULL;
+
+    return SUCCESS;
 }
 
 int binary_tree_delete(t_binary_tree * tree, void (*destructor)(t_data)){
@@ -592,4 +639,56 @@ static int node_pos_order_traverse(t_node * start, void (*func)(t_data)){
     func(start -> value);
 
     return SUCCESS;
+}
+
+// Used to be passed for traverse in copy methods
+static void void_binary_tree_insert(t_data value){
+    if(__tree_ref == NULL){
+        return;
+    }
+
+    if((__tree_ref -> root) == NULL){
+        t_node * new_root = node_create(value, NULL, NULL, NULL);
+        if(new_root == NULL){
+            return;
+        }
+        (__tree_ref -> root) = new_root;
+        (__tree_ref -> size)++;
+
+        return;
+    }
+
+    t_node * node = (__tree_ref -> root);
+    t_node * previous = NULL;
+    while(node != NULL){
+        if((__tree_ref -> compare_function)((node -> value), value) > 0){
+            previous = node;
+            node = (node -> right);
+            continue;
+        }
+        else if((__tree_ref -> compare_function)((node -> value), value) < 0){
+            previous = node;
+            node = (node -> left);
+            continue;
+        }
+        else{
+            return;
+        }
+    }
+
+    t_node * new_node = node_create(value, previous, NULL, NULL);
+    if(new_node == NULL){
+        return;
+    }
+
+    // value > previous => right
+    if((__tree_ref -> compare_function)((previous -> value), value) > 0){
+        (previous -> right) = new_node;
+    }
+    // value < previous => left
+    else if((__tree_ref -> compare_function)((previous -> value), value) < 0){
+        (previous -> left) = new_node;
+    }
+
+    (__tree_ref -> size)++;
 }
