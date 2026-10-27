@@ -643,52 +643,5 @@ static int node_pos_order_traverse(t_node * start, void (*func)(t_data)){
 
 // Used to be passed for traverse in copy methods
 static void void_binary_tree_insert(t_data value){
-    if(__tree_ref == NULL){
-        return;
-    }
-
-    if((__tree_ref -> root) == NULL){
-        t_node * new_root = node_create(value, NULL, NULL, NULL);
-        if(new_root == NULL){
-            return;
-        }
-        (__tree_ref -> root) = new_root;
-        (__tree_ref -> size)++;
-
-        return;
-    }
-
-    t_node * node = (__tree_ref -> root);
-    t_node * previous = NULL;
-    while(node != NULL){
-        if((__tree_ref -> compare_function)((node -> value), value) > 0){
-            previous = node;
-            node = (node -> right);
-            continue;
-        }
-        else if((__tree_ref -> compare_function)((node -> value), value) < 0){
-            previous = node;
-            node = (node -> left);
-            continue;
-        }
-        else{
-            return;
-        }
-    }
-
-    t_node * new_node = node_create(value, previous, NULL, NULL);
-    if(new_node == NULL){
-        return;
-    }
-
-    // value > previous => right
-    if((__tree_ref -> compare_function)((previous -> value), value) > 0){
-        (previous -> right) = new_node;
-    }
-    // value < previous => left
-    else if((__tree_ref -> compare_function)((previous -> value), value) < 0){
-        (previous -> left) = new_node;
-    }
-
-    (__tree_ref -> size)++;
+    binary_tree_insert(__tree_ref, value);
 }
