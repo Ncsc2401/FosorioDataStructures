@@ -24,20 +24,32 @@ t_binary_tree * binary_tree_create(float (*compare_function)(t_data, t_data));
 int binary_tree_delete(t_binary_tree * tree, void (*destructor)(t_data));
 int binary_tree_insert(t_binary_tree * tree, t_data value);
 int binary_tree_has(t_binary_tree * tree, t_data value);
+int binary_tree_get_depth(t_binary_tree * tree, t_data value, size_t * out_depth);
+int binary_tree_get_root(t_binary_tree * tree, t_data * out);
+int binary_tree_get_left(t_binary_tree * tree, t_data value, t_data * out);
+int binary_tree_get_right(t_binary_tree * tree, t_data value, t_data * out);
+int binary_tree_get_parent(t_binary_tree * tree, t_data value, t_data * out);
 int binary_tree_get_size(t_binary_tree * tree, size_t * out);
 int binary_tree_min(t_binary_tree * tree, t_data * out);
 int binary_tree_max(t_binary_tree * tree, t_data * out);
 int binary_tree_is_empty(t_binary_tree * tree);
 int binary_tree_get_successor(t_binary_tree * tree, t_data value, t_data * out);
 int binary_tree_get_predecessor(t_binary_tree * tree, t_data value, t_data * out);
+int binary_tree_pre_order(t_binary_tree * tree, void (*func)(t_data));
+int binary_tree_in_order(t_binary_tree * tree, void (*func)(t_data));
+int binary_tree_pos_order(t_binary_tree * tree, void (*func)(t_data));
 
 // HELPER PROTOTYPES
 static t_node * node_create(t_data value, t_node * parent, t_node * left, t_node * right);
 static int node_get_left_most_from(t_node * start, t_node ** out);
 static int node_get_right_most_from(t_node * start, t_node ** out);
-static int node_find_from(t_node * start, float (*compare_function)(t_data, t_data), t_data value, t_node ** out);
+static int node_find_from(t_node * start, float (*compare_function)(t_data, t_data), t_data value, t_node ** out, size_t * out_size);
 static int node_is_leaf(t_node * node);
 static int node_is_root(t_node * node);
+static int node_count_depth(t_node * start, size_t * out_depth);
+static int node_pre_order_traverse(t_node * start, void (*func)(t_data));
+static int node_in_order_traverse(t_node * start, void (*func)(t_data));
+static int node_pos_order_traverse(t_node * start, void (*func)(t_data));
 
 t_binary_tree * binary_tree_create(float (*compare_function)(t_data, t_data)){
     if(compare_function == NULL){   
@@ -158,7 +170,103 @@ int binary_tree_has(t_binary_tree * tree, t_data value){
         return FALSE;
     }
 
-    return !node_find_from((tree -> root), (tree -> compare_function), value, NULL);
+    return !node_find_from((tree -> root), (tree -> compare_function), value, NULL, NULL);
+}
+
+int binary_tree_get_depth(t_binary_tree * tree, t_data value, size_t * out_depth){
+    if(tree == NULL){
+        return ERROR;
+    }
+
+    size_t depth;
+    if(node_find_from((tree -> root), (tree -> compare_function), value, NULL, &depth)){
+        return ERROR;
+    }
+
+    if(out_depth != NULL){
+        (*out_depth) = depth;
+    }
+
+    return SUCCESS;
+}
+
+int binary_tree_get_root(t_binary_tree * tree, t_data * out){
+    if(tree == NULL){
+        return ERROR;
+    }
+
+    if((tree -> root) == NULL){
+        return ERROR;
+    }
+
+    if(out != NULL){
+        (*out) = (tree -> root -> value);
+    }
+
+    return SUCCESS;
+}
+
+int binary_tree_get_left(t_binary_tree * tree, t_data value, t_data * out){
+    if(tree == NULL){
+        return ERROR;
+    }
+
+    t_node * node;
+    if(node_find_from((tree -> root), (tree -> compare_function), value, &node, NULL)){
+        return ERROR;
+    }
+
+    if((node -> left) == NULL){
+        return ERROR;
+    }
+
+    if(out != NULL){
+        (*out) = (node -> left -> value);
+    }
+
+    return SUCCESS;
+}
+
+int binary_tree_get_right(t_binary_tree * tree, t_data value, t_data * out){
+    if(tree == NULL){
+        return ERROR;
+    }
+
+    t_node * node;
+    if(node_find_from((tree -> root), (tree -> compare_function), value, &node, NULL)){
+        return ERROR;
+    }
+
+    if((node -> right) == NULL){
+        return ERROR;
+    }
+
+    if(out != NULL){
+        (*out) = (node -> right -> value);
+    }
+
+    return SUCCESS;
+}
+
+int binary_tree_get_parent(t_binary_tree * tree, t_data value, t_data * out){
+    if(tree == NULL){
+        return ERROR;
+    }
+
+    t_node * node;
+    if(node_find_from((tree -> root), (tree -> compare_function), value, &node, NULL)){
+        return ERROR;
+    }
+
+    if((node -> parent) == NULL){
+        return ERROR;
+    }
+
+    if(out != NULL){
+        (*out) = (node -> parent -> value);
+    }
+
+    return SUCCESS;
 }
 
 int binary_tree_get_size(t_binary_tree * tree, size_t * out){
@@ -221,7 +329,7 @@ int binary_tree_get_successor(t_binary_tree * tree, t_data value, t_data * out){
     }
 
     t_node * node;
-    if(node_find_from((tree -> root), (tree -> compare_function), value, &node)){
+    if(node_find_from((tree -> root), (tree -> compare_function), value, &node, NULL)){
         return ERROR;
     }
 
@@ -243,7 +351,7 @@ int binary_tree_get_predecessor(t_binary_tree * tree, t_data value, t_data * out
     }
 
     t_node * node;
-    if(node_find_from((tree -> root), (tree -> compare_function), value, &node)){
+    if(node_find_from((tree -> root), (tree -> compare_function), value, &node, NULL)){
         return ERROR;
     }
 
@@ -257,6 +365,42 @@ int binary_tree_get_predecessor(t_binary_tree * tree, t_data value, t_data * out
     if(out != NULL){
         (*out) = (predecessor -> value);
     }
+}
+
+int binary_tree_pre_order(t_binary_tree * tree, void (*func)(t_data)){
+    if(tree == NULL){
+        return ERROR;
+    }
+
+    if(func == NULL){
+        return ERROR;
+    }
+
+    return node_pre_order_traverse((tree -> root), func);
+}
+
+int binary_tree_in_order(t_binary_tree * tree, void (*func)(t_data)){
+    if(tree == NULL){
+        return ERROR;
+    }
+
+    if(func == NULL){
+        return ERROR;
+    }
+
+    return node_in_order_traverse((tree -> root), func);
+}
+
+int binary_tree_pos_order(t_binary_tree * tree, void (*func)(t_data)){
+    if(tree == NULL){
+        return ERROR;
+    }
+
+    if(func == NULL){
+        return ERROR;
+    }
+
+    return node_pos_order_traverse((tree -> root), func);
 }
 
 // HELPER FUNCTIONS
@@ -310,8 +454,32 @@ static int node_get_right_most_from(t_node * start, t_node ** out){
     return SUCCESS;
 }
 
-static int node_find_from(t_node * start, float (*compare_function)(t_data, t_data), t_data value, t_node ** out){
+static int node_count_depth(t_node * start, size_t * out_depth){
     if(start == NULL){
+        return ERROR;
+    }
+
+    size_t depth = 1;
+    t_node * node = start;
+    while((node -> parent) != NULL){
+        node = (node -> parent);
+        depth++;
+    }
+
+    if(out_depth != NULL){
+        (*out_depth) = depth;
+    }
+
+    return SUCCESS;
+}
+
+static int node_find_from(t_node * start, float (*compare_function)(t_data, t_data), t_data value, t_node ** out, size_t * out_depth){
+    if(start == NULL){
+        return ERROR;
+    }
+
+    size_t depth;
+    if(node_count_depth(start, &depth)){
         return ERROR;
     }
 
@@ -320,15 +488,14 @@ static int node_find_from(t_node * start, float (*compare_function)(t_data, t_da
         if(compare_function((node -> value), value) == 0){
             break;
         }
-        
         else if(compare_function((node -> value), value) > 0){
             node = (node -> right);
-            continue;
         }
         else if(compare_function((node -> value), value) < 0){
             node = (node -> left);
-            continue;
         }
+
+        depth++;
     }
 
     if(node == NULL){
@@ -337,6 +504,10 @@ static int node_find_from(t_node * start, float (*compare_function)(t_data, t_da
     
     if(out != NULL){
         (*out) = node;
+    }
+
+    if(out_depth != NULL){
+        (*out_depth) = depth;
     }
 
     return SUCCESS;
@@ -356,4 +527,69 @@ static int node_is_root(t_node * node){
     }
 
     return (node -> parent) == NULL;
+}
+
+static int node_pre_order_traverse(t_node * start, void (*func)(t_data)){
+    if(start == NULL){
+        return SUCCESS;
+    }
+
+    if(func == NULL){
+        return ERROR;
+    }
+
+    func(start -> value);
+    if(node_pre_order_traverse((start -> left), func)){
+        return ERROR;
+    }
+
+    if(node_pre_order_traverse((start -> right), func)){
+        return ERROR;
+    }
+
+    return SUCCESS;
+}
+
+static int node_in_order_traverse(t_node * start, void (*func)(t_data)){
+    if(start == NULL){
+        return SUCCESS;
+    }
+
+    if(func == NULL){
+        return ERROR;
+    }
+
+    if(node_pre_order_traverse((start -> left), func)){
+        return ERROR;
+    }
+
+    func(start -> value);
+
+    if(node_pre_order_traverse((start -> right), func)){
+        return ERROR;
+    }
+
+    return SUCCESS;
+}
+
+static int node_pos_order_traverse(t_node * start, void (*func)(t_data)){
+    if(start == NULL){
+        return SUCCESS;
+    }
+
+    if(func == NULL){
+        return ERROR;
+    }
+
+    if(node_pre_order_traverse((start -> left), func)){
+        return ERROR;
+    }
+
+    if(node_pre_order_traverse((start -> right), func)){
+        return ERROR;
+    }
+
+    func(start -> value);
+
+    return SUCCESS;
 }
