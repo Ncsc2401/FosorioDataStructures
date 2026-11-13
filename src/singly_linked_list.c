@@ -22,7 +22,7 @@ typedef struct s_singly_linked_list{
 // Prototypes
 t_singly_linked_list * singly_linked_list_create(void);
 int singly_linked_list_copy(t_singly_linked_list * list, t_singly_linked_list * out);
-int singly_linked_list_delete(t_singly_linked_list * list, void (*destructor)(t_data));
+int singly_linked_list_delete(t_singly_linked_list * list, void (*destructor)(t_data, void *), void * context);
 int singly_linked_list_append(t_singly_linked_list * list, t_data value);
 int singly_linked_list_insert_after(t_singly_linked_list * list, size_t index, t_data value);
 int singly_linked_list_insert_before(t_singly_linked_list * list, size_t index, t_data value);
@@ -34,10 +34,10 @@ int singly_linked_list_find_first_after(t_singly_linked_list * list, t_data valu
 int singly_linked_list_remove_first_after(t_singly_linked_list * list, t_data value, size_t index, int (*equals_function)(t_data, t_data));
 int singly_linked_list_clear(t_singly_linked_list * list);
 int singly_linked_list_get_size(t_singly_linked_list * list, size_t * out_size);
-int singly_linked_list_foreach(t_singly_linked_list * list, void (*function)(t_data));
-int singly_linked_list_map(t_singly_linked_list * list, t_data (*function)(t_data));
+int singly_linked_list_foreach(t_singly_linked_list * list, void (*function)(t_data, void *), void * context);
+int singly_linked_list_map(t_singly_linked_list * list, t_data (*function)(t_data, void *), void * context);
 int singly_linked_list_is_empty(t_singly_linked_list * list);
-int singly_linked_list_filter(t_singly_linked_list * list, int (*function)(t_data), t_singly_linked_list * out);
+int singly_linked_list_filter(t_singly_linked_list * list, int (*function)(t_data, void *), void * context, t_singly_linked_list * out);
 int singly_linked_list_sort(t_singly_linked_list * list, int (*compare_function)(t_data, t_data));
 
 // Helper prototypes
@@ -93,13 +93,13 @@ int singly_linked_list_copy(t_singly_linked_list * list, t_singly_linked_list * 
     Deletes a singly linked list
     Performance O(2n)
 */
-int singly_linked_list_delete(t_singly_linked_list * list, void (*destructor)(t_data)){
+int singly_linked_list_delete(t_singly_linked_list * list, void (*destructor)(t_data, void *), void * context){
     if(list == NULL){
         return ERROR;
     }
 
     if(destructor != NULL){
-        if(singly_linked_list_foreach(list, destructor)){
+        if(singly_linked_list_foreach(list, destructor, context)){
             return ERROR;
         }
     }
@@ -421,7 +421,7 @@ int singly_linked_list_get_size(t_singly_linked_list * list, size_t * out_size){
     Executes a function for each value in the singly linked list
     Performance O(nO(function))
 */
-int singly_linked_list_foreach(t_singly_linked_list * list, void (*function)(t_data)){
+int singly_linked_list_foreach(t_singly_linked_list * list, void (*function)(t_data, void *), void * context){
     if(list == NULL){
         return ERROR;
     }
@@ -433,7 +433,7 @@ int singly_linked_list_foreach(t_singly_linked_list * list, void (*function)(t_d
     t_node * node = (list -> head);
 
     while(node != NULL){
-        function(node -> value);
+        function((node -> value), context);
         node = (node -> next);
     }
 
@@ -444,7 +444,7 @@ int singly_linked_list_foreach(t_singly_linked_list * list, void (*function)(t_d
     Maps all values in a singly linked list
     Performance O(nO(function))
 */
-int singly_linked_list_map(t_singly_linked_list * list, t_data (*function)(t_data)){
+int singly_linked_list_map(t_singly_linked_list * list, t_data (*function)(t_data, void *), void * context){
     if(list == NULL){
         return ERROR;
     }
@@ -456,7 +456,7 @@ int singly_linked_list_map(t_singly_linked_list * list, t_data (*function)(t_dat
     t_node * node = (list -> head);
 
     while(node != NULL){
-        (node -> value) = function(node -> value);
+        (node -> value) = function((node -> value), context);
         node = (node -> next);
     }
 
@@ -479,7 +479,7 @@ int singly_linked_list_is_empty(t_singly_linked_list * list){
     Applies a filter and appends the matching values to out
     O(NO(function))
 */
-int singly_linked_list_filter(t_singly_linked_list * list, int (*function)(t_data), t_singly_linked_list * out){
+int singly_linked_list_filter(t_singly_linked_list * list, int (*function)(t_data, void *), void * context, t_singly_linked_list * out){
     if(list == NULL){
         return ERROR;
     }
@@ -495,7 +495,7 @@ int singly_linked_list_filter(t_singly_linked_list * list, int (*function)(t_dat
     t_node * node = (list -> head);
 
     while(node != NULL){
-        if(function(node -> value)){
+        if(function((node -> value), context)){
             if(singly_linked_list_append(out, node -> value)){
                 return ERROR;
             }

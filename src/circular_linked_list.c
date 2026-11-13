@@ -22,7 +22,7 @@ typedef struct s_circular_linked_list{
 // Prototypes
 t_circular_linked_list * circular_linked_list_create(void);
 int circular_linked_list_copy(t_circular_linked_list * list, t_circular_linked_list * out);
-int circular_linked_list_delete(t_circular_linked_list * list, void (*destructor)(t_data));
+int circular_linked_list_delete(t_circular_linked_list * list, void (*destructor)(t_data, void * context), void * context);
 int circular_linked_list_append(t_circular_linked_list * list, t_data value);
 int circular_linked_list_insert_after(t_circular_linked_list * list, size_t index, t_data value);
 int circular_linked_list_insert_before(t_circular_linked_list * list, size_t index, t_data value);
@@ -33,8 +33,8 @@ int circular_linked_list_remove_at(t_circular_linked_list * list, size_t index);
 int circular_linked_list_has(t_circular_linked_list * list, t_data value, int (*equals_function)(t_data, t_data));
 int circular_linked_list_clear(t_circular_linked_list * list);
 int circular_linked_list_get_size(t_circular_linked_list * list, size_t * out_size);
-int circular_linked_list_foreach(t_circular_linked_list * list, void (*function)(t_data));
-int circular_linked_list_map(t_circular_linked_list * list, t_data (*function)(t_data));
+int circular_linked_list_foreach(t_circular_linked_list * list, void (*function)(t_data, void *), void * context);
+int circular_linked_list_map(t_circular_linked_list * list, t_data (*function)(t_data, void *), void * context);
 int circular_linked_list_is_empty(t_circular_linked_list * list);
 int circular_linked_list_filter(t_circular_linked_list * list, int (*function)(t_data), t_circular_linked_list * out);
 int circular_linked_list_sort(t_circular_linked_list * list, int (*compare_function)(t_data, t_data));
@@ -97,13 +97,13 @@ int circular_linked_list_copy(t_circular_linked_list * list, t_circular_linked_l
     Deletes a circular linked list
     Performance O(n)
 */
-int circular_linked_list_delete(t_circular_linked_list * list, void (*destructor)(t_data)){
+int circular_linked_list_delete(t_circular_linked_list * list, void (*destructor)(t_data, void * context), void * context){
     if(list == NULL){
         return ERROR;
     }
 
     if(destructor != NULL){
-        if(circular_linked_list_foreach(list, destructor)){
+        if(circular_linked_list_foreach(list, destructor, context)){
             return ERROR;
         }
     }
@@ -384,7 +384,7 @@ int circular_linked_list_get_size(t_circular_linked_list * list, size_t * out_si
     Executes a function for each value in the circular linked list
     Performance O(nO(function))
 */
-int circular_linked_list_foreach(t_circular_linked_list * list, void (*function)(t_data)){
+int circular_linked_list_foreach(t_circular_linked_list * list, void (*function)(t_data, void *), void * context){
     if(list == NULL){
         return ERROR;
     }
@@ -401,7 +401,7 @@ int circular_linked_list_foreach(t_circular_linked_list * list, void (*function)
     t_node * node = origin;
 
     do{
-        function(node -> value);
+        function((node -> value), context);
         node = (node -> next);
     }while(node != origin);
 
@@ -412,7 +412,7 @@ int circular_linked_list_foreach(t_circular_linked_list * list, void (*function)
     Maps all values in a circular linked list
     Performance O(nO(function))
 */
-int circular_linked_list_map(t_circular_linked_list * list, t_data (*function)(t_data)){
+int circular_linked_list_map(t_circular_linked_list * list, t_data (*function)(t_data, void *), void * context){
     if(list == NULL){
         return ERROR;
     }
@@ -429,7 +429,7 @@ int circular_linked_list_map(t_circular_linked_list * list, t_data (*function)(t
     t_node * node = origin;
 
     do{
-        (node -> value) = function(node -> value);
+        (node -> value) = function((node -> value), context);
         node = (node -> next);
     } while(node != origin);
 

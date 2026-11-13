@@ -23,7 +23,7 @@ typedef struct s_doubly_linked_list{
 // Prototypes
 t_doubly_linked_list * doubly_linked_list_create(void);
 int doubly_linked_list_copy(t_doubly_linked_list * list, t_doubly_linked_list * out);
-int doubly_linked_list_delete(t_doubly_linked_list * list, void (*destructor)(t_data));
+int doubly_linked_list_delete(t_doubly_linked_list * list, void (*destructor)(t_data, void *), void * context);
 int doubly_linked_list_append(t_doubly_linked_list * list, t_data value);
 int doubly_linked_list_insert_after(t_doubly_linked_list * list, size_t index, t_data value);
 int doubly_linked_list_insert_before(t_doubly_linked_list * list, size_t index, t_data value);
@@ -35,10 +35,10 @@ int doubly_linked_list_find_first_after(t_doubly_linked_list * list, t_data valu
 int doubly_linked_list_remove_first_after(t_doubly_linked_list * list, t_data value, size_t index, int (*equals_function)(t_data, t_data));
 int doubly_linked_list_clear(t_doubly_linked_list * list);
 int doubly_linked_list_get_size(t_doubly_linked_list * list, size_t * out_size);
-int doubly_linked_list_foreach(t_doubly_linked_list * list, void (*function)(t_data));
-int doubly_linked_list_map(t_doubly_linked_list * list, t_data (*function)(t_data));
+int doubly_linked_list_foreach(t_doubly_linked_list * list, void (*function)(t_data, void *), void * context);
+int doubly_linked_list_map(t_doubly_linked_list * list, t_data (*function)(t_data, void *), void * context);
 int doubly_linked_list_is_empty(t_doubly_linked_list * list);
-int doubly_linked_list_filter(t_doubly_linked_list * list, int (*function)(t_data), t_doubly_linked_list * out);
+int doubly_linked_list_filter(t_doubly_linked_list * list, int (*function)(t_data, void *), void * context, t_doubly_linked_list * out);
 int doubly_linked_list_sort(t_doubly_linked_list * list, int (*compare_function)(t_data, t_data));
 
 // Helper prototypes
@@ -94,13 +94,13 @@ int doubly_linked_list_copy(t_doubly_linked_list * list, t_doubly_linked_list * 
     Deletes a doubly linked list
     Performance O(2n)
 */
-int doubly_linked_list_delete(t_doubly_linked_list * list, void (*destructor)(t_data)){
+int doubly_linked_list_delete(t_doubly_linked_list * list, void (*destructor)(t_data, void *), void * context){
     if(list == NULL){
         return ERROR;
     }
 
     if(destructor != NULL){
-        if(doubly_linked_list_foreach(list, destructor)){
+        if(doubly_linked_list_foreach(list, destructor, context)){
             return ERROR;
         }
     }
@@ -420,7 +420,7 @@ int doubly_linked_list_get_size(t_doubly_linked_list * list, size_t * out_size){
     Executes a function for each value in the doubly linked list
     Performance O(nO(function))
 */
-int doubly_linked_list_foreach(t_doubly_linked_list * list, void (*function)(t_data)){
+int doubly_linked_list_foreach(t_doubly_linked_list * list, void (*function)(t_data, void *), void * context){
     if(list == NULL){
         return ERROR;
     }
@@ -432,7 +432,7 @@ int doubly_linked_list_foreach(t_doubly_linked_list * list, void (*function)(t_d
     t_node * node = (list -> head);
 
     while(node != NULL){
-        function(node -> value);
+        function((node -> value), context);
         node = (node -> next);
     }
 
@@ -443,7 +443,7 @@ int doubly_linked_list_foreach(t_doubly_linked_list * list, void (*function)(t_d
     Maps all values in a doubly linked list
     Performance O(nO(function))
 */
-int doubly_linked_list_map(t_doubly_linked_list * list, t_data (*function)(t_data)){
+int doubly_linked_list_map(t_doubly_linked_list * list, t_data (*function)(t_data, void *), void * context){
     if(list == NULL){
         return ERROR;
     }
@@ -455,7 +455,7 @@ int doubly_linked_list_map(t_doubly_linked_list * list, t_data (*function)(t_dat
     t_node * node = (list -> head);
 
     while(node != NULL){
-        (node -> value) = function(node -> value);
+        (node -> value) = function((node -> value), context);
         node = (node -> next);
     }
 
@@ -477,7 +477,7 @@ int doubly_linked_list_is_empty(t_doubly_linked_list * list){
 /*
     Applies a filter and appends matching values to out
 */
-int doubly_linked_list_filter(t_doubly_linked_list * list, int (*function)(t_data), t_doubly_linked_list * out){
+int doubly_linked_list_filter(t_doubly_linked_list * list, int (*function)(t_data, void *), void * context, t_doubly_linked_list * out){
     if(list == NULL){
         return ERROR;
     }
@@ -493,7 +493,7 @@ int doubly_linked_list_filter(t_doubly_linked_list * list, int (*function)(t_dat
     t_node * node = (list -> head);
 
     while(node != NULL){
-        if(function(node -> value)){
+        if(function((node -> value), context)){
             if(doubly_linked_list_append(out, node -> value)){
                 return ERROR;
             }

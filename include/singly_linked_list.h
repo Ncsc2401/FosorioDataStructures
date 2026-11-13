@@ -10,7 +10,7 @@ typedef struct s_singly_linked_list t_singly_linked_list;
 // Prototypes
 t_singly_linked_list * singly_linked_list_create(void);
 int singly_linked_list_copy(t_singly_linked_list * list, t_singly_linked_list * out);
-int singly_linked_list_delete(t_singly_linked_list * list, void (*destructor)(t_data));
+int singly_linked_list_delete(t_singly_linked_list * list, void (*destructor)(t_data, void *), void * context);
 int singly_linked_list_append(t_singly_linked_list * list, t_data value);
 int singly_linked_list_insert_after(t_singly_linked_list * list, size_t index, t_data value);
 int singly_linked_list_insert_before(t_singly_linked_list * list, size_t index, t_data value);
@@ -22,10 +22,10 @@ int singly_linked_list_find_first_after(t_singly_linked_list * list, t_data valu
 int singly_linked_list_remove_first_after(t_singly_linked_list * list, t_data value, size_t index, int (*equals_function)(t_data, t_data));
 int singly_linked_list_clear(t_singly_linked_list * list);
 int singly_linked_list_get_size(t_singly_linked_list * list, size_t * out_size);
-int singly_linked_list_foreach(t_singly_linked_list * list, void (*function)(t_data));
-int singly_linked_list_map(t_singly_linked_list * list, t_data (*function)(t_data));
+int singly_linked_list_foreach(t_singly_linked_list * list, void (*function)(t_data, void *), void * context);
+int singly_linked_list_map(t_singly_linked_list * list, t_data (*function)(t_data, void *), void * context);
 int singly_linked_list_is_empty(t_singly_linked_list * list);
-int singly_linked_list_filter(t_singly_linked_list * list, int (*function)(t_data), t_singly_linked_list * out);
+int singly_linked_list_filter(t_singly_linked_list * list, int (*function)(t_data, void *), void * context, t_singly_linked_list * out);
 int singly_linked_list_sort(t_singly_linked_list * list, int (*compare_function)(t_data, t_data));
 
 #endif
